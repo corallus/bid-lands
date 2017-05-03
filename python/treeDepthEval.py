@@ -191,6 +191,14 @@ def getN(info):
 
 
 def getANLP(q, n, minPrice, maxPrice):
+    """
+
+    :param q: 
+    :param n: 
+    :param minPrice: Int 
+    :param maxPrice: Int
+    :return: anlp, N
+    """
     anlp = 0.0
     N = 0
     if isinstance(q, dict):
@@ -218,6 +226,11 @@ def getANLP(q, n, minPrice, maxPrice):
 
 
 def treeDepthEval0(info):
+    """
+
+    :param info: Info
+    :return: None
+    """
     fout_evaluation = open(info.fname_evaluation, 'w')
     fout_evaluation.write("evaluation campaign " + str(info.campaign) + " mode " + MODE_NAME_LIST[
         info.mode] + " basebid " + info.basebid + '\n')
@@ -297,6 +310,10 @@ def treeDepthEval0(info):
 # run after paraTune:leafSize
 # generate evaluation of treeDepth with different leafSize
 def treeDepthEval(campaign_list):
+    """
+
+    :param campaign_list: List[String]
+    """
     IFROOT = '../make-ipinyou-data/'
     OFROOT = '../data/SurvivalModel/'
     BASE_BID = '0'

@@ -15,6 +15,10 @@ BASE_BID = '0'
 
 # generate DecisionTree and fout
 def main(campaign_list):
+    """
+
+    :param campaign_list: List[String] 
+    """
     suffix_list = ['n', 's', 'f']
     runtimes = {}
     for campaign in campaign_list:
@@ -91,6 +95,10 @@ def main(campaign_list):
 
 
 def paraTune(campaign_list):
+    """
+
+    :param campaign_list: List[String] 
+    """
     suffix_list = ['n', 's', 'f']
     runtimes_leafSize = {}
     for campaign in campaign_list:

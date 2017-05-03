@@ -8,6 +8,11 @@ DAY_LIST = ['20130607', '20131019']
 
 
 def getWinningPrice(ifname_price):
+    """
+
+    :param ifname_price: String 
+    :return: List[Int] 
+    """
     fin = open(ifname_price, 'r')
     w = []
     for line in fin:
@@ -17,6 +22,11 @@ def getWinningPrice(ifname_price):
 
 
 def getTestData_yzx(ifname_data):
+    """
+
+    :param ifname_data: String 
+    :return: List[Any] 
+    """
     fin = open(ifname_data, 'r')
     wt = []
 
@@ -29,6 +39,12 @@ def getTestData_yzx(ifname_data):
 
 
 def getQ(w, info):
+    """
+
+    :param w: List[] 
+    :param info: Info
+    :return: [Float]
+    """
     laplace = info.laplace
     q = [0.0] * UPPER
     count = 0
@@ -43,6 +59,11 @@ def getQ(w, info):
 
 
 def baseline_kdd15_Rversion0(info):
+    """
+
+    :param info: Info
+    :return: q: List[Float], w: Union[float, dict, List[float]]
+    """
     w = []
     for day in DAY_LIST:
         tmpw = getWinningPrice(info.fname_trainlog + day + '.txt')
@@ -110,6 +131,10 @@ def baseline_kdd15_Rversion0(info):
 
 
 def baseline_kdd15_Rversion_demo(campaign_list):
+    """
+
+    :param campaign_list: List[String] 
+    """
     BASE_BID = '0'
     IFROOT_TRAIN = '../data/kdd15/WinningPrice/'
     IFROOT_TEST = '../make-ipinyou-data/'

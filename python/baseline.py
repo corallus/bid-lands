@@ -6,7 +6,12 @@ from evaluation import getANLP
 
 
 def getTrainData_b(ifname_data, ifname_bid):
-    # calculate line number
+    """
+     
+    :param ifname_data: String
+    :param ifname_bid: String
+    :return: w: List, winAuctions: List, winbid: Dict, losebid: Dict
+    """
     line_num = 0
     fi = open(ifname_data, 'r')
     for line in fi:
@@ -52,6 +57,10 @@ def getTrainData_b(ifname_data, ifname_bid):
 
 
 def getTestData_b(ifname_data):
+    """
+    :param ifname_data: String 
+    :return: wt: List 
+    """
     fin = open(ifname_data, 'r')
     wt = []
     i = -2
@@ -66,6 +75,10 @@ def getTestData_b(ifname_data):
 
 
 def baseline(info):
+    """
+    :param info: Info
+    :return: q: List[float], w: Union[float, dict, List[float]]
+    """
     fout_baseline = open(info.fname_baseline, 'w')
     fout_q = open(info.fname_baseline_q, 'w')
     fout_w = open(info.fname_baseline_w, 'w')

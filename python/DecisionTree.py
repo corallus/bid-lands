@@ -23,7 +23,10 @@ TREE_DEPTH = 50
 # TREE_DEPTH = 80
 TREE_DEPTH_LIST = [1, 2, 3, 4, 5, 6, 8, 10, 18, 22, 28, 30, 40]
 # TREE_DEPTH_LIST = [1,2,3,4,5,6,8,10,12,14,16,18,20,22,24,26,28,30,32,34,36,38,40]
-MODE_LIST = [NORMAL, SURVIVAL]
+MODE_LIST = [
+    NORMAL,
+    SURVIVAL
+]
 # MODE_LIST = [NORMAL,SURVIVAL,FULL]
 CAMPAIGN_LIST = ['2997']
 # CAMPAIGN_LIST = ['2259','2261','2997']
@@ -53,6 +56,9 @@ FEAT_NAME = ['click', 'weekday', 'hour', 'bidid', 'timestamp', 'logtype', 'ipiny
 
 
 class Info:
+    """
+    Class storing the file names
+    """
     mode = NORMAL  # NORMAL or SURVIVAL
     campaign = ""
     basebid = '0'
@@ -143,6 +149,9 @@ class Info:
 
 
 class NodeInfo:
+    """
+    Class for decision tree nodes
+    """
     nodeIndex = 0
     bestFeat = 0
     KLD = 0.0
@@ -157,6 +166,11 @@ class NodeInfo:
         self.s2_keys = _s2_keys
 
     def write(self, ofname, mode):
+        """
+
+        :param ofname: String
+        :param mode: Element of ['SM', ...]
+        """
         fout = open(ofname, mode)
         fout.write('nodeIndex ' + str(self.nodeIndex) + '\n')
         fout.write("bestFeat " + str(FEAT_NAME[self.bestFeat]) + " " + str(self.bestFeat) +
@@ -178,6 +192,12 @@ class NodeInfo:
 # get traindata
 def getTrainData(ifname_data, ifname_bid):
     # calculate line number
+    """
+
+    :param ifname_data: String 
+    :param ifname_bid: String
+    :return: List[List]
+    """
     line_num = 0
     fi = open(ifname_data, 'r')
     for line in fi:
@@ -230,6 +250,11 @@ def getTrainData(ifname_data, ifname_bid):
 
 
 def getTestData(ifname_data):
+    """
+
+    :param ifname_data: String
+    :return: List[List]
+    """
     fin = open(ifname_data, 'r')
     lines = fin.readlines()
     dataset = []
@@ -252,6 +277,11 @@ def getTestData(ifname_data):
 
 
 def n2q(n):
+    """
+
+    :param n: Dict or List
+    :return: List[Float]
+    """
     q = 0.
     if isinstance(n, dict):
         q = {}
@@ -267,6 +297,11 @@ def n2q(n):
 
 
 def q2w(q):
+    """
+
+    :param q: Dict or List
+    :return: List[Float]
+    """
     w = 0.
     if isinstance(q, dict):
         w = {}
@@ -282,12 +317,23 @@ def q2w(q):
 
 
 def fillLen(q, Len):
+    """
+
+    :param q: List
+    :param Len: Int 
+    """
     start = len(q)
     for i in range(start, Len):
         q.append(q[start - 1])
 
 
 def equalLen(q1, q2):
+    """
+
+    :param q1: List 
+    :param q2: List
+    :return: 
+    """
     if len(q1) == len(q2):
         return
     start = len(q1)
@@ -299,6 +345,11 @@ def equalLen(q1, q2):
 
 
 def winCount(dataset):
+    """
+
+    :param dataset: List[List]
+    :return: Int 
+    """
     count = 0
     win_auctions = [eval(data[WIN_AUCTION_INDEX]) for data in dataset]
     for win_auction in win_auctions:
@@ -310,6 +361,12 @@ def winCount(dataset):
 # Change dataset into s
 # s[i] is the sub market price distribution for data with [feature,value] = [featIndex,i]
 def dataset2s(dataset, featIndex):
+    """
+
+    :param dataset: List[List] 
+    :param featIndex: Int
+    :return: s: Dict, winbids: Dict, losebids: Dict
+    """
     s = {}
     winbids = {}
     losebids = {}
@@ -339,6 +396,13 @@ def dataset2s(dataset, featIndex):
 
 
 def s2dataset(s, orgDataset, featIndex):
+    """
+
+    :param s: 
+    :param orgDataset: List[List]
+    :param featIndex: Int
+    :return: List[List]
+    """
     dataset = []
     for i in range(0, len(orgDataset)):
         if s.has_key(orgDataset[i][featIndex]):
@@ -347,6 +411,12 @@ def s2dataset(s, orgDataset, featIndex):
 
 
 def changeBucket(x, step):
+    """
+
+    :param x: 
+    :param step: 
+    :return: 
+    """
     if step == 1:
         return deepcopy(x)
     b = int(ceil(float(len(x)) / step))
@@ -361,6 +431,12 @@ def changeBucket(x, step):
 
 # uniform the probability in each bucket (to smooth the survival probability)(this function is not used now)
 def changeBucketUniform(x, step):
+    """
+
+    :param x: 
+    :param step: 
+    :return: 
+    """
     if step == 1:
         return deepcopy(x)
     b = int(ceil(float(len(x)) / step))
@@ -379,6 +455,13 @@ def changeBucketUniform(x, step):
 
 
 def KLDivergence(_P, _Q, step=STEP):
+    """
+
+    :param _P: 
+    :param _Q: 
+    :param step: 
+    :return: 
+    """
     if len(_P) != len(_Q):
         print 'kld:', len(_P), len(_Q)
         return 0
@@ -395,6 +478,12 @@ def KLDivergence(_P, _Q, step=STEP):
 
 
 def pearsonr(x, y):
+    """
+
+    :param x: 
+    :param y: 
+    :return: 
+    """
     if len(x) != len(y):
         print 'len(x) != len(y)'
         return
@@ -419,6 +508,14 @@ def pearsonr(x, y):
 # s is a list(or dict of lists) of market price
 # normal version
 def calProbDistribution_n(s, minPrice, maxPrice, info):
+    """
+
+    :param s: 
+    :param minPrice: 
+    :param maxPrice: 
+    :param info: 
+    :return: 
+    """
     laplace = info.laplace
     q = [0.0] * UPPER
     count = 0
@@ -442,6 +539,16 @@ def calProbDistribution_n(s, minPrice, maxPrice, info):
 # s is a list(or dict of lists) of market price
 # winbids,losebids is a dict (or dict of dict)
 def calProbDistribution_s(s, winbids, losebids, minPrice, maxPrice, info):
+    """
+
+    :param s: 
+    :param winbids: 
+    :param losebids: 
+    :param minPrice: 
+    :param maxPrice: 
+    :param info: 
+    :return: 
+    """
     laplace = info.laplace
     fout_testSurvival = open(info.fname_testSurvival, 'w')
 
@@ -547,6 +654,16 @@ def calProbDistribution_s(s, winbids, losebids, minPrice, maxPrice, info):
 
 
 def calProbDistribution(s, winbids, losebids, minPrice, maxPrice, info):
+    """
+
+    :param s: 
+    :param winbids: 
+    :param losebids: 
+    :param minPrice: 
+    :param maxPrice: 
+    :param info: 
+    :return: 
+    """
     if info.mode == NORMAL or info.mode == FULL:
         return calProbDistribution_n(s, minPrice, maxPrice, info)
     elif info.mode == SURVIVAL:
@@ -559,6 +676,16 @@ def calProbDistribution(s, winbids, losebids, minPrice, maxPrice, info):
 # feature has been decided before entering kmeans
 # winbids,losebids is dict of dict
 def kmeans(s, winbids, losebids, minPrice, maxPrice, info):
+    """
+
+    :param s: 
+    :param winbids: 
+    :param losebids: 
+    :param minPrice: 
+    :param maxPrice: 
+    :param info: 
+    :return: 
+    """
     if len(s) == 0:
         return 0
     fout = open(info.fname_testKmeans, 'a')
@@ -735,6 +862,12 @@ def decisionTree1(dataset,nodeIndex):
 # dataset[i][j] is the jth feature of the ith data
 # iterative version
 def decisionTree2(_dataset, info):
+    """
+
+    :param _dataset: 
+    :param info: 
+    :return: 
+    """
     fout_nodeData = open(info.fname_nodeData, 'w')
     # clear fout_nodeInfo
     fout_nodeInfo = open(info.fname_nodeInfo, 'w')
@@ -842,6 +975,12 @@ def decisionTree2(_dataset, info):
 
 
 def mywrite(q, text, info):
+    """
+
+    :param q: 
+    :param text: 
+    :param info: 
+    """
     fout_monitor = open(info.fname_monitor, 'a')
     fout_monitor.write(str(text) + '\n')
     for i in range(0, len(q)):

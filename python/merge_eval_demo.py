@@ -4,6 +4,10 @@ MODEL_LIST = ['baseline_kdd15', 'normal_baseline', 'survival_baseline', 'normal_
 
 
 def merge_eval_demo(campaign_list):
+    """
+
+    :param campaign_list: List[String] 
+    """
     IFROOT = '../data/SurvivalModel/'
     IFROOT_KDD15 = '../data/baseline_kdd15_Rversion/'
     OFROOT = '../data/evaluation/'

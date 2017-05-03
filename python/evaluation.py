@@ -7,6 +7,12 @@ from DecisionTree import *
 
 
 def isChild(p, c):
+    """
+
+    :param p: Int 
+    :param c: Int
+    :return: Bool
+    """
     while p < c:
         c /= 2
     if p == c:
@@ -17,6 +23,13 @@ def isChild(p, c):
 
 # get q of any node
 def getNodeQ(nodeIndex, mp, info):
+    """
+    
+    :param nodeIndex: Int
+    :param mp: 
+    :param info: 
+    :return: 
+    """
     laplace = info.laplace
     q = [0.0] * UPPER
     count = 0
@@ -34,6 +47,12 @@ def getNodeQ(nodeIndex, mp, info):
 
 
 def plotSubBidLands(q1, q2, nodeInfo):
+    """
+
+    :param q1: List[Float]
+    :param q2: List[Float]
+    :param nodeInfo: NodeInfo
+    """
     logq1 = [log(x) for x in q1]
     logq2 = [log(x) for x in q2]
 
@@ -52,6 +71,11 @@ def plotSubBidLands(q1, q2, nodeInfo):
 
 
 def getNodeInfos(info):
+    """
+
+    :param info: Info
+    :return: List[NodeInfo]
+    """
     print "getNodeInfos()"
     fin_nodeInfo = open(info.fname_nodeInfo, 'r')
     lines = fin_nodeInfo.readlines()
@@ -85,6 +109,11 @@ def getNodeInfos(info):
 
 
 def getTrainPriceCount(info):
+    """
+
+    :param info: Info
+    :return: wcount: Dict, winbids: Dict, losebids: Dict, minPrice: Float, maxPrice: Float, mp: Dict
+    """
     print "getTrainPriceCount()"
     fin_nodeData = open(info.fname_nodeData, 'r')
     lines = fin_nodeData.readlines()
@@ -138,6 +167,11 @@ def getTrainPriceCount(info):
 
 
 def getQ(info):
+    """
+
+    :param info: Info
+    :return: q: Dict, minPrice: Float, maxPrice: Float
+    """
     print "getQ()"
     fout_q = open(info.fname_tree_q, 'w')
     fout_w = open(info.fname_tree_w, 'w')
@@ -183,6 +217,11 @@ def getQ(info):
 
 
 def getN(info):
+    """
+
+    :param info: Info 
+    :return: n: Dict, minPrice: Float, maxPrice: Float
+    """
     print "getN()"
     testset = getTestData(info.fname_testlog)
     nodeInfos = getNodeInfos(info)
@@ -226,6 +265,14 @@ def getN(info):
 
 
 def getANLP(q, n, minPrice, maxPrice):
+    """
+
+    :param q: 
+    :param n: 
+    :param minPrice: Int
+    :param maxPrice: Int
+    :return: Int 
+    """
     anlp = 0.0
     N = 0
     if isinstance(q, dict):
@@ -253,6 +300,11 @@ def getANLP(q, n, minPrice, maxPrice):
 
 
 def evaluate(info):
+    """
+
+    :param info: Info
+    :return: None
+    """
     fout_evaluation = open(info.fname_evaluation, 'w')
     fout_evaluation.write("evaluation campaign " + str(info.campaign) + " mode " + MODE_NAME_LIST[
         info.mode] + " basebid " + info.basebid + '\n')

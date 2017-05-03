@@ -10,13 +10,17 @@ OFROOT = '../data/SurvivalModel/'
 BASE_BID = '0'
 
 
-# get traindata
 def getTrainData_demo(ifname_data, ifname_bid):
-    # get data
+    """
+    returns training data
+    :param ifname_data: String 
+    :param ifname_bid: String
+    :return: List[List] 
+    """
+
     fin = open(ifname_data, 'r')
     lines = fin.readlines()
     dataset = []
-    featName = []
     i = -2
     for line in lines:
         i += 1
@@ -52,8 +56,11 @@ def getTrainData_demo(ifname_data, ifname_bid):
     return dataset
 
 
-# generate DecisionTree and fout
 def main(campaign_list):
+    """
+    generate DecisionTree and fout
+    :param campaign_list: List[String]
+    """
     suffix_list = ['n', 's', 'f']
     runtimes = {}
     for campaign in campaign_list:

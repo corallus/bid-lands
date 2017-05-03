@@ -1,3 +1,4 @@
+# coding=utf-8
 import os
 import time
 
@@ -25,7 +26,7 @@ def getTestData_yzx(ifname_data):
     """
 
     :param ifname_data: String 
-    :return: List 
+    :return: List[Any] 
     """
     fin = open(ifname_data, 'r')
     wt = []
@@ -41,7 +42,7 @@ def getTestData_yzx(ifname_data):
 def getQ(w, info):
     """
 
-    :param w: []
+    :param w: List[] 
     :param info: Info
     :return: [Float]
     """
@@ -133,7 +134,7 @@ def baseline_kdd15_Rversion0(info):
 def baseline_kdd15_Rversion(campaign_list):
     """
 
-    :param campaign_list: List[Int] 
+    :param campaign_list: List[String] 
     """
     BASE_BID = '0'
     IFROOT_TRAIN = '../data/kdd15/WinningPrice/'

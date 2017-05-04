@@ -4,7 +4,6 @@ from baseline_kdd15_Rversion import baseline_kdd15_Rversion
 from enlargeLeafSize import enlargeLeafSize
 from evaluation import *
 from merge_eval import merge_eval
-from settings import *
 from treeDepthEval import treeDepthEval
 from baseline import *
 
@@ -16,7 +15,7 @@ def main(campaign_list):
     """
     runtimes = {}
     for campaign in campaign_list:
-        # create os directory
+        # create os directories
         campaign_results_dir = os.path.join(SURVIVAL_MODEL, campaign)
         if not os.path.exists(campaign_results_dir):
             os.makedirs(campaign_results_dir)
@@ -65,12 +64,14 @@ def main(campaign_list):
             info.fname_pruneNode = os.path.join(mode_dir, 'pruneNode_%s%s.txt' % (campaign, suffix))
             info.fname_pruneEval = os.path.join(mode_dir, 'pruneEval_%s%s.txt' % (campaign, suffix))
             info.fname_testwin = os.path.join(mode_dir, 'testWin_%s%s.txt' % (campaign, suffix))
+
             # baseline
             print campaign + " " + modeName + " baseline begins."
             print time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(time.time()))
             baseline = BaseLine()
             baseline.baseline(info)
             print campaign + " " + modeName + " baseline ends."
+
             # getDataset
             dataset = getTrainData(info.fname_trainlog, info.fname_trainbid)
 
@@ -109,8 +110,6 @@ def paraTune(campaign_list):
         if not os.path.exists(campaign_results_dir):
             os.makedirs(campaign_results_dir)
         campaign_data_dir = os.path.join(MAKE_IPINYOU_DATA, campaign)
-        if not os.path.exists(campaign_data_dir):
-            os.makedirs(campaign_data_dir)
 
         for mode in MODE_LIST:
             runtimes_leafSize[campaign][mode] = {}
@@ -168,7 +167,8 @@ def paraTune(campaign_list):
                 # baseline
                 print campaign, modeName, 'leafSize', leafSize, "baseline begins."
                 print time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(time.time()))
-                baseline(info)
+                baseline = BaseLine()
+                baseline.baseline(info)
                 print campaign, modeName, 'leafSize', leafSize, "baseline ends."
                 # getDataset
                 dataset = getTrainData(info.fname_trainlog, info.fname_trainbid)
@@ -195,12 +195,15 @@ def paraTune(campaign_list):
                     runtimes_leafSize[campaign][mode][leafSize])
 
 
-# campaign_list = CAMPAIGN_LIST
-campaign_list = ['2997']
+# generate decision tree and fout
+main(CAMPAIGN_LIST)
 
-main(campaign_list)
-paraTune(campaign_list)
-enlargeLeafSize(campaign_list)
-treeDepthEval(campaign_list)
-baseline_kdd15_Rversion(campaign_list)
-merge_eval(campaign_list)
+paraTune(CAMPAIGN_LIST)
+
+enlargeLeafSize(CAMPAIGN_LIST)
+
+treeDepthEval(CAMPAIGN_LIST)
+
+baseline_kdd15_Rversion(CAMPAIGN_LIST)
+
+merge_eval(CAMPAIGN_LIST)

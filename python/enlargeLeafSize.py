@@ -5,6 +5,11 @@ from settings import *
 
 
 def getPruneInfo(info):
+    """
+
+    :param info: Info 
+    :return: 
+    """
     print 'getPruneInfo'
     leafSize = info.leafSize
     pruneInfo = {}
@@ -44,6 +49,12 @@ def getPruneInfo(info):
 
 
 def writeNodeInfos2(info, pruneInfo):
+    """
+
+    :param info: Info
+    :param pruneInfo: 
+    :return: 
+    """
     print "writeNodeInfos2()"
     fin_nodeInfo = open(info.fname_nodeInfo, 'r')
     lines = fin_nodeInfo.readlines()
@@ -87,6 +98,12 @@ def writeNodeInfos2(info, pruneInfo):
 
 
 def writeNodeData2(info, pruneInfo):
+    """
+
+    :param info: Info
+    :param pruneInfo: 
+    :return: 
+    """
     print "writeNodeData2()"
     fin_nodeData = open(info.fname_nodeData, 'r')
     fout_nodeData2 = open(info.fname_nodeData2, 'w')
@@ -121,6 +138,11 @@ def writeNodeData2(info, pruneInfo):
 
 
 def getNodeInfos(info):
+    """
+
+    :param info: Info
+    :return: 
+    """
     print "getNodeInfos()"
     fin_nodeInfo = open(info.fname_nodeInfo2, 'r')
     lines = fin_nodeInfo.readlines()
@@ -154,6 +176,11 @@ def getNodeInfos(info):
 
 
 def getTrainPriceCount(info):
+    """
+
+    :param info: Info
+    :return: 
+    """
     print "getTrainPriceCount()"
     fin_nodeData = open(info.fname_nodeData2, 'r')
     lines = fin_nodeData.readlines()
@@ -203,6 +230,11 @@ def getTrainPriceCount(info):
 
 
 def getQ(info):
+    """
+
+    :param info: Info
+    :return: 
+    """
     print "getQ()"
     fout_q = open(info.fname_tree_q, 'w')
     fout_w = open(info.fname_tree_w, 'w')
@@ -247,6 +279,11 @@ def getQ(info):
 
 
 def getN(info):
+    """
+
+    :param info: Info 
+    :return: 
+    """
     print "getN()"
     testset = getTestData(info.fname_testlog)
     nodeInfos = getNodeInfos(info)
@@ -290,6 +327,14 @@ def getN(info):
 
 
 def getANLP(q, n, minPrice, maxPrice):
+    """
+
+    :param q: 
+    :param n: 
+    :param minPrice: 
+    :param maxPrice: 
+    :return: 
+    """
     anlp = 0.0
     N = 0
     if isinstance(q, dict):
@@ -317,6 +362,10 @@ def getANLP(q, n, minPrice, maxPrice):
 
 
 def enlargeLeafSize0(info):
+    """
+
+    :param info: Info 
+    """
     fout_evaluation = open(info.fname_evaluation, 'w')
     fout_evaluation.write("evaluation campaign " + str(info.campaign) + " mode " + MODE_NAME_LIST[
         info.mode] + " basebid " + info.basebid + '\n')
@@ -361,7 +410,7 @@ def enlargeLeafSize0(info):
             KLD = 0.
             N = 0
             for k in q.keys():
-                if not n.has_key(k):
+                if k not in n:
                     continue
                 qtk = calProbDistribution_n(n[k], trainMinPrice, trainMaxPrice, info)
                 wtk = q2w(qtk)
@@ -379,24 +428,30 @@ def enlargeLeafSize0(info):
             print "KLD = " + str(KLD) + "  N = " + str(N)
 
     fout_evaluation.close()
-    return
 
 
 # run after paraTune:leafSize
 # generate evaluation of treeDepth with different leafSize
 def enlargeLeafSize(campaign_list):
-    IFROOT = '../make-ipinyou-data/'
-    OFROOT = '../data/SurvivalModel/'
-    BASE_BID = '0'
+    """
+
+    :param campaign_list: List[String] 
+    """
 
     for campaign in campaign_list:
         print
         print campaign
         for mode in MODE_LIST:
+            modeName = MODE_NAME_LIST[mode]
+            suffix = SUFFIX_LIST[mode]
+            # create os directory
+            mode_dir = os.path.join(SURVIVAL_MODEL, campaign, modeName, 'paraTune')
+            if not os.path.exists(mode_dir):
+                os.makedirs(mode_dir)
+
+            ifroot_leafSize = os.path.join(mode_dir, 'leafSize_0')
             for leafSize in [3000]:
                 print MODE_NAME_LIST[mode],
-                modeName = MODE_NAME_LIST[mode]
-                suffix = SUFFIX_LIST[mode]
 
                 info = Info()
                 info.basebid = BASE_BID
@@ -407,25 +462,21 @@ def enlargeLeafSize(campaign_list):
                 info.leafSize = leafSize
                 info.treeDepth = TREE_DEPTH
 
-                # create os directory
-                if not os.path.exists(OFROOT + campaign + '/' + modeName + '/paraTune'):
-                    os.makedirs(OFROOT + campaign + '/' + modeName + '/paraTune')
-                if not os.path.exists(OFROOT + campaign + '/' + modeName + '/paraTune/leafSize_' + str(leafSize)):
-                    os.makedirs(OFROOT + campaign + '/' + modeName + '/paraTune/leafSize_' + str(leafSize))
-                ofroot = OFROOT + campaign + '/' + modeName + '/paraTune/leafSize_' + str(leafSize)
-                ifroot_leafSize = OFROOT + campaign + '/' + modeName + '/paraTune/leafSize_0'
+                leaf_dir = os.path.join(mode_dir, 'leafSize_%s' % leafSize)
+                if not os.path.exists(leaf_dir):
+                    os.makedirs(leaf_dir)
 
-                info.fname_testlog = IFROOT + campaign + '/test.log.txt'
-                info.fname_nodeData = ifroot_leafSize + '/nodeData_' + campaign + suffix + '.txt'
-                info.fname_nodeInfo = ifroot_leafSize + '/nodeInfos_' + campaign + suffix + '.txt'
+                info.fname_testlog = os.path.join(MAKE_IPINYOU_DATA, campaign, 'test.log.txt')
+                info.fname_nodeData = os.path.join(ifroot_leafSize, 'nodeData_%s%s.txt' % (campaign, suffix))
+                info.fname_nodeInfo = os.path.join(ifroot_leafSize, 'nodeInfos_%s%s.txt' % (campaign, suffix))
 
-                info.fname_nodeData2 = ofroot + '/nodeData_' + campaign + suffix + '.txt'
-                info.fname_nodeInfo2 = ofroot + '/nodeInfos_' + campaign + suffix + '.txt'
-                info.fname_evaluation = ofroot + '/evaluation_' + campaign + suffix + '.txt'
-                info.fname_tree_q = ofroot + '/tree_q_' + campaign + suffix + '.txt'
-                info.fname_tree_w = ofroot + '/tree_w_' + campaign + suffix + '.txt'
+                info.fname_nodeData2 = os.path.join(leaf_dir, 'nodeData_%s%s.txt' % (campaign, suffix))
+                info.fname_nodeInfo2 = os.path.join(leaf_dir, 'nodeInfos_%s%s.txt' % (campaign, suffix))
+                info.fname_evaluation = os.path.join(leaf_dir, 'evaluation_%s%s.txt' % (campaign, suffix))
+                info.fname_tree_q = os.path.join(leaf_dir, 'tree_q_%s%s.txt' % (campaign, suffix))
+                info.fname_tree_w = os.path.join(leaf_dir, 'tree_w_%s%s.txt' % (campaign, suffix))
 
-                info.fname_testSurvival = ofroot + '/testSurvival_' + campaign + suffix + '.txt'
+                info.fname_testSurvival = os.path.join(leaf_dir, 'testSurvival_%s%s.txt' % (campaign, suffix))
 
                 # evaluation
                 enlargeLeafSize0(info)

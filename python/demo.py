@@ -60,15 +60,13 @@ def main(campaign_list):
     """
     runtimes = {}
     for campaign in campaign_list:
-        # create os directory
+        # create os directories
         campaign_results_dir = os.path.join(SURVIVAL_MODEL, campaign)
         if not os.path.exists(campaign_results_dir):
             os.makedirs(campaign_results_dir)
         campaign_data_dir = os.path.join(MAKE_IPINYOU_DATA, campaign)
-        if not os.path.exists(campaign_data_dir):
-            os.makedirs(campaign_data_dir)
+
         for mode in MODE_LIST:
-            # tempt filter
             start_time = time.clock()
 
             info = Info()
@@ -109,12 +107,14 @@ def main(campaign_list):
             info.fname_pruneNode = os.path.join(mode_dir, 'pruneNode_%s%s.txt' % (campaign, suffix))
             info.fname_pruneEval = os.path.join(mode_dir, 'pruneEval_%s%s.txt' % (campaign, suffix))
             info.fname_testwin = os.path.join(mode_dir, 'testWin_%s%s.txt' % (campaign, suffix))
+
             # baseline
             print campaign + " " + modeName + " baseline begins."
             print time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(time.time()))
             baseline = BaseLineDemo()
             baseline.baseline(info)
             print campaign + " " + modeName + " baseline ends."
+
             # getDataset
             dataset = getTrainData_demo(info.fname_trainlog, info.fname_trainbid)
 
@@ -129,7 +129,7 @@ def main(campaign_list):
 
             # runtime
             end_time = time.clock()
-            if not runtimes.has_key(campaign):
+            if campaign not in runtimes:
                 runtimes[campaign] = []
             runtimes[campaign].append(end_time - start_time)
 
@@ -141,6 +141,9 @@ def main(campaign_list):
 
 
 campaign_list = ['2259']
+
+# generate decision tree and fout
 main(campaign_list)
+
 baseline_kdd15_Rversion_demo(campaign_list)
 merge_eval_demo(campaign_list)

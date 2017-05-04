@@ -1,14 +1,18 @@
-import os
 import time
 from random import randint
 
-import numpy as np
 from matplotlib.pyplot import *
 
 from DecisionTree import *
+from settings import *
 
 
 def getNodeInfos(info):
+    """
+
+    :param info: Info 
+    :return: List[NodeInfo] 
+    """
     print "getNodeInfos()"
     fin_nodeInfo = open(info.fname_nodeInfo, 'r')
     lines = fin_nodeInfo.readlines()
@@ -43,6 +47,11 @@ def getNodeInfos(info):
 
 
 def getTrainPriceCount(info):
+    """
+
+    :param info: Info 
+    :return: wcount, winbids, losebids, minPrice, maxPrice
+    """
     print "getTrainPriceCount()"
     fin_nodeData = open(info.fname_nodeData, 'r')
     lines = fin_nodeData.readlines()
@@ -94,6 +103,11 @@ def getTrainPriceCount(info):
 
 
 def getQ(info):
+    """
+
+    :param info: Info
+    :return: q, minPrice, maxPrice
+    """
     print "getQ()"
     fout_q = open(info.fname_tree_q, 'w')
     fout_w = open(info.fname_tree_w, 'w')
@@ -138,6 +152,11 @@ def getQ(info):
 
 
 def getN(info):
+    """
+
+    :param info: Info 
+    :return: n, minPrice, maxPrice
+    """
     print "getN()"
     testset = getTestData(info.fname_testlog)
     nodeInfos = getNodeInfos(info)
@@ -178,7 +197,7 @@ def getN(info):
                 break
     end_time = time.clock()
     print '\nTime cost per sample distribution forecasting:', float((end_time - start_time)) / len(testset)
-    fout = open('E:/research/RealTimeBidding/data/mydata/output/evaluation/final/time.txt', 'w')
+    fout = open(os.path.join(EVALUATION, 'final', 'time.txt'), 'w')
     fout.write("evaluation campaign " + str(info.campaign) + " mode " + MODE_NAME_LIST[info.mode] + '\n')
     fout.write(
         "leafSize " + str(info.leafSize) + " treeDepth " + str(info.treeDepth) + " laplace " + str(info.laplace) + "\n")
@@ -190,13 +209,11 @@ def getN(info):
     return n, minPrice, maxPrice
 
 
-def getANLP(q, n, minPrice, maxPrice):
+def getANLP(q, n):
     """
 
     :param q: 
     :param n: 
-    :param minPrice: Int 
-    :param maxPrice: Int
     :return: anlp, N
     """
     anlp = 0.0
@@ -252,15 +269,13 @@ def treeDepthEval0(info):
             fout_evaluation.write("eval mode = ANLP\n")
             print "eval mode = ANLP"
             bucket = 0
-            anlp = 0
-            N = 0
             for step in STEP_LIST:
                 q = deepcopy(_q)
                 n = deepcopy(_n)
                 for k in q.keys():
                     q[k] = changeBucketUniform(q[k], step)
                     bucket = len(q[k])
-                anlp, N = getANLP(q, n, trainMinPrice, trainMaxPrice)
+                anlp, N = getANLP(q, n)
                 # fout_evaluation
                 fout_evaluation.write("bucket " + str(bucket) + " step " + str(step) + "\n")
                 fout_evaluation.write("Average negative log probability = " + str(anlp) + "  N = " + str(N) + "\n")
@@ -314,21 +329,19 @@ def treeDepthEval(campaign_list):
 
     :param campaign_list: List[String]
     """
-    IFROOT = '../make-ipinyou-data/'
-    OFROOT = '../data/SurvivalModel/'
-    BASE_BID = '0'
-
-    suffix_list = ['n', 's', 'f']
 
     for campaign in campaign_list:
         print
         print campaign
         for mode in MODE_LIST:
+            modeName = MODE_NAME_LIST[mode]
+            suffix = SUFFIX_LIST[mode]
+            paratune_dir = os.path.join(SURVIVAL_MODEL, campaign, modeName, 'paraTune')
+            if not os.path.exists(paratune_dir):
+                os.makedirs(paratune_dir)
             for leafSize in [0, 3000]:
                 for treeDepth in [1, 2, 3, 4, 5, 6, 8, 10, 18, 22, 28, 30, 40]:
                     print MODE_NAME_LIST[mode],
-                    modeName = MODE_NAME_LIST[mode]
-                    suffix = suffix_list[mode]
 
                     info = Info()
                     info.basebid = BASE_BID
@@ -340,25 +353,21 @@ def treeDepthEval(campaign_list):
                     info.treeDepth = treeDepth
 
                     # create os directory
-                    if not os.path.exists(OFROOT + campaign + '/' + modeName + '/paraTune'):
-                        os.makedirs(OFROOT + campaign + '/' + modeName + '/paraTune')
-                    if not os.path.exists(OFROOT + campaign + '/' + modeName + '/paraTune/treeDepth_' + str(
-                            treeDepth) + '_leafSize_' + str(leafSize)):
-                        os.makedirs(OFROOT + campaign + '/' + modeName + '/paraTune/treeDepth_' + str(
-                            treeDepth) + '_leafSize_' + str(leafSize))
-                    ofroot = OFROOT + campaign + '/' + modeName + '/paraTune/treeDepth_' + str(
-                        treeDepth) + '_leafSize_' + str(leafSize)
-                    ifroot_leafSize = OFROOT + campaign + '/' + modeName + '/paraTune/leafSize_' + str(leafSize)
+                    leaf_dir = os.path.join(paratune_dir, 'treeDepth_%s_leafSize_%s' % (str(treeDepth), str(leafSize)))
+                    if not os.path.exists(leaf_dir):
+                        os.makedirs(leaf_dir)
 
-                    info.fname_testlog = IFROOT + campaign + '/test.log.txt'
-                    info.fname_nodeData = ifroot_leafSize + '/nodeData_' + campaign + suffix + '.txt'
-                    info.fname_nodeInfo = ifroot_leafSize + '/nodeInfos_' + campaign + suffix + '.txt'
+                    ifroot_leafSize = os.path.join(paratune_dir, 'leafSize_%s' % str(leafSize))
 
-                    info.fname_evaluation = ofroot + '/evaluation_' + campaign + suffix + '.txt'
-                    info.fname_tree_q = ofroot + '/tree_q_' + campaign + suffix + '.txt'
-                    info.fname_tree_w = ofroot + '/tree_w_' + campaign + suffix + '.txt'
+                    info.fname_testlog = os.path.join(MAKE_IPINYOU_DATA, campaign, 'test.log.txt')
+                    info.fname_nodeData = os.path.join(ifroot_leafSize, 'nodeData_%s%s.txt' % (campaign, suffix))
+                    info.fname_nodeInfo = os.path.join(ifroot_leafSize, 'nodeInfos_%s%s.txt' % (campaign, suffix))
 
-                    info.fname_testSurvival = ofroot + '/testSurvival_' + campaign + suffix + '.txt'
+                    info.fname_evaluation = os.path.join(leaf_dir, 'evaluation_%s%s.txt' % (campaign, suffix))
+                    info.fname_tree_q = os.path.join(leaf_dir, 'tree_q_%s%s.txt' % (campaign, suffix))
+                    info.fname_tree_w = os.path.join(leaf_dir, 'tree_w_%s%s.txt' % (campaign, suffix))
+
+                    info.fname_testSurvival = os.path.join(leaf_dir, 'testSurvival_%s%s.txt' % (campaign, suffix))
 
                     # evaluation
                     treeDepthEval0(info)

@@ -1,9 +1,9 @@
-import os
 from random import randint
 
 from matplotlib.pyplot import *
 
 from DecisionTree import *
+from settings import *
 
 
 def isChild(p, c):
@@ -367,54 +367,49 @@ def evaluate(info):
 
 
 if __name__ == '__main__':
-    IFROOT = '../make-ipinyou-data/'
-    OFROOT = '../data/SurvivalModel/'
-    BASE_BID = '0'
-
-    suffix_list = ['n', 's', 'f']
-
     for campaign in CAMPAIGN_LIST:
         print
         print campaign
         for mode in MODE_LIST:
+            suffix = SUFFIX_LIST[mode]
+            modeName = MODE_NAME_LIST[mode]
+            # create os directory
+            mode_dir = os.path.join(SURVIVAL_MODEL, campaign, modeName)
+            if not os.path.exists(mode_dir):
+                os.makedirs(mode_dir)
+            plot_dir = os.path.join(mode_dir, 'plot')
+            if not os.path.exists(plot_dir):
+                os.makedirs(plot_dir)
             for laplace in [LAPLACE]:
                 print MODE_NAME_LIST[mode],
-                modeName = MODE_NAME_LIST[mode]
-                suffix = suffix_list[mode]
-
-                # create os directory
-                if not os.path.exists(OFROOT + campaign + '/' + modeName + '/plot'):
-                    os.makedirs(OFROOT + campaign + '/' + modeName + '/plot')
-
                 info = Info()
                 info.laplace = laplace
                 info.basebid = BASE_BID
                 info.mode = mode
                 info.campaign = campaign
-                info.fname_trainlog = IFROOT + campaign + '/train.log.txt'
-                info.fname_testlog = IFROOT + campaign + '/test.log.txt'
-                info.fname_nodeData = OFROOT + campaign + '/' + modeName + '/nodeData_' + campaign + suffix + '.txt'
-                info.fname_nodeInfo = OFROOT + campaign + '/' + modeName + '/nodeInfos_' + campaign + suffix + '.txt'
+                info.fname_trainlog = os.path.join(MAKE_IPINYOU_DATA, campaign, 'train.log.txt')
+                info.fname_testLog = os.path.join(MAKE_IPINYOU_DATA, campaign, 'test.log.txt')
+                info.fname_nodeData = os.path.join(mode_dir, 'nodeData_%s%s.txt' % (campaign, suffix))
+                info.fname_nodeInfo = os.path.join(mode_dir, 'nodeInfos_%s%s.txt' % (campaign, suffix))
 
-                info.fname_trainbid = IFROOT + campaign + '/train_bid.txt'
-                info.fname_testbid = IFROOT + campaign + '/test_bid.txt'
-                info.fname_baseline = OFROOT + campaign + '/' + modeName + '/baseline_' + campaign + suffix + '.txt'
+                info.fname_trainbid = os.path.join(MAKE_IPINYOU_DATA, campaign, 'train_bid.txt')
+                info.fname_testbid = os.path.join(MAKE_IPINYOU_DATA, campaign, 'test_bid.txt')
+                info.fname_baseline = os.path.join(mode_dir, 'baseline_%s%s.txt' % (campaign, suffix))
 
-                info.fname_monitor = OFROOT + campaign + '/' + modeName + '/monitor_' + campaign + suffix + '.txt'
-                info.fname_testKmeans = OFROOT + campaign + '/' + modeName + '/testKmeans_' + campaign + suffix + '.txt'
-                info.fname_testSurvival = OFROOT + campaign + '/' + modeName + '/testSurvival_' + campaign + suffix + '.txt'
+                info.fname_monitor = os.path.join(mode_dir, 'monitor_%s%s.txt' % (campaign, suffix))
+                info.fname_testKmeans = os.path.join(mode_dir, 'testKmeans_%s%s.txt' % (campaign, suffix))
+                info.fname_testSurvival = os.path.join(mode_dir, 'testSurvival_%s%s.txt' % (campaign, suffix))
 
-                info.fname_evaluation = OFROOT + campaign + '/' + modeName + '/evaluation_' + campaign + suffix + '.txt'
-                info.fname_baseline_q = OFROOT + campaign + '/' + modeName + '/baseline_q_' + campaign + suffix + '.txt'
-                info.fname_tree_q = OFROOT + campaign + '/' + modeName + '/tree_q_' + campaign + suffix + '.txt'
-                info.fname_test_q = OFROOT + campaign + '/' + modeName + '/test_q_' + campaign + suffix + '.txt'
-                info.fname_baseline_w = OFROOT + campaign + '/' + modeName + '/baseline_w_' + campaign + suffix + '.txt'
-                info.fname_tree_w = OFROOT + campaign + '/' + modeName + '/tree_w_' + campaign + suffix + '.txt'
-                info.fname_test_w = OFROOT + campaign + '/' + modeName + '/test_w_' + campaign + suffix + '.txt'
+                info.fname_evaluation = os.path.join(mode_dir, 'evaluation_%s%s.txt' % (campaign, suffix))
+                info.fname_baseline_q = os.path.join(mode_dir, 'baseline_q_%s%s.txt' % (campaign, suffix))
+                info.fname_tree_q = os.path.join(mode_dir, 'tree_q_%s%s.txt' % (campaign, suffix))
+                info.fname_baseline_w = os.path.join(mode_dir, 'baseline_w_%s%s.txt' % (campaign, suffix))
+                info.fname_tree_w = os.path.join(mode_dir, 'tree_w_%s%s.txt' % (campaign, suffix))
+                info.fname_test_w = os.path.join(mode_dir, 'test_w_%s%s.txt' % (campaign, suffix))
 
-                info.fname_pruneNode = OFROOT + campaign + '/' + modeName + '/pruneNode_' + campaign + suffix + '.txt'
-                info.fname_pruneEval = OFROOT + campaign + '/' + modeName + '/pruneEval_' + campaign + suffix + '.txt'
-                info.fname_testwin = OFROOT + campaign + '/' + modeName + '/testwin_' + campaign + suffix + '.txt'
+                info.fname_pruneNode = os.path.join(mode_dir, 'pruneNode_%s%s.txt' % (campaign, suffix))
+                info.fname_pruneEval = os.path.join(mode_dir, 'pruneEval_%s%s.txt' % (campaign, suffix))
+                info.fname_testwin = os.path.join(mode_dir, 'testwin_%s%s.txt' % (campaign, suffix))
 
                 # evaluation
                 evaluate(info)

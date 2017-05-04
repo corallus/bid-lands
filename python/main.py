@@ -1,27 +1,28 @@
-import os
 import time
 
-from baseline import *
 from baseline_kdd15_Rversion import baseline_kdd15_Rversion
 from enlargeLeafSize import enlargeLeafSize
 from evaluation import *
 from merge_eval import merge_eval
+from settings import *
 from treeDepthEval import treeDepthEval
-
-IFROOT = '../make-ipinyou-data/'
-OFROOT = '../data/SurvivalModel/'
-BASE_BID = '0'
+from baseline import *
 
 
-# generate DecisionTree and fout
 def main(campaign_list):
     """
-
-    :param campaign_list: List[String] 
+    generate DecisionTree and fout
+    :param campaign_list: List[String]
     """
-    suffix_list = ['n', 's', 'f']
     runtimes = {}
     for campaign in campaign_list:
+        # create os directory
+        campaign_results_dir = os.path.join(SURVIVAL_MODEL, campaign)
+        if not os.path.exists(campaign_results_dir):
+            os.makedirs(campaign_results_dir)
+        campaign_data_dir = os.path.join(MAKE_IPINYOU_DATA, campaign)
+        if not os.path.exists(campaign_data_dir):
+            os.makedirs(campaign_data_dir)
         for mode in MODE_LIST:
             # tempt filter
             start_time = time.clock()
@@ -31,43 +32,44 @@ def main(campaign_list):
             info.campaign = campaign
             info.mode = mode
             modeName = MODE_NAME_LIST[mode]
-            suffix = suffix_list[mode]
+            suffix = SUFFIX_LIST[mode]
 
             info.laplace = LAPLACE
             info.leafSize = LEAF_SIZE
             info.treeDepth = TREE_DEPTH
 
             # create os directory
-            if not os.path.exists(OFROOT + campaign + '/' + modeName):
-                os.makedirs(OFROOT + campaign + '/' + modeName)
+            mode_dir = os.path.join(campaign_results_dir, modeName)
+            if not os.path.exists(mode_dir):
+                os.makedirs(mode_dir)
             # info assignment
-            info.fname_trainlog = IFROOT + campaign + '/train.log.txt'
-            info.fname_testlog = IFROOT + campaign + '/test.log.txt'
-            info.fname_nodeData = OFROOT + campaign + '/' + modeName + '/nodeData_' + campaign + suffix + '.txt'
-            info.fname_nodeInfo = OFROOT + campaign + '/' + modeName + '/nodeInfos_' + campaign + suffix + '.txt'
+            info.fname_trainlog = os.path.join(campaign_data_dir, 'train.log.txt')
+            info.fname_testlog = os.path.join(campaign_data_dir, 'test.log.txt')
+            info.fname_nodeData = os.path.join(mode_dir, 'nodeData_%s%s.txt' % (campaign, suffix))
+            info.fname_nodeInfo = os.path.join(mode_dir, 'nodeInfos_%s%s.txt' % (campaign, suffix))
 
-            info.fname_trainbid = IFROOT + campaign + '/train_bid.txt'
-            info.fname_testbid = IFROOT + campaign + '/test_bid.txt'
-            info.fname_baseline = OFROOT + campaign + '/' + modeName + '/baseline_' + campaign + suffix + '.txt'
+            info.fname_trainbid = os.path.join(campaign_data_dir, 'train_bid.txt')
+            info.fname_testbid = os.path.join(campaign_data_dir, 'test_bid.txt')
+            info.fname_baseline = os.path.join(mode_dir, 'baseline_%s%s.txt' % (campaign, suffix))
 
-            info.fname_monitor = OFROOT + campaign + '/' + modeName + '/monitor_' + campaign + suffix + '.txt'
-            info.fname_testKmeans = OFROOT + campaign + '/' + modeName + '/testKmeans_' + campaign + suffix + '.txt'
-            info.fname_testSurvival = OFROOT + campaign + '/' + modeName + '/testSurvival_' + campaign + suffix + '.txt'
+            info.fname_monitor = os.path.join(mode_dir, 'monitor_%s%s.txt' % (campaign, suffix))
+            info.fname_testKmeans = os.path.join(mode_dir, 'testKmeans_%s%s.txt' % (campaign, suffix))
+            info.fname_testSurvival = os.path.join(mode_dir, 'testSurvival_%s%s.txt' % (campaign, suffix))
 
-            info.fname_evaluation = OFROOT + campaign + '/' + modeName + '/evaluation_' + campaign + suffix + '.txt'
-            info.fname_baseline_q = OFROOT + campaign + '/' + modeName + '/baseline_q_' + campaign + suffix + '.txt'
-            info.fname_tree_q = OFROOT + campaign + '/' + modeName + '/tree_q_' + campaign + suffix + '.txt'
-            info.fname_baseline_w = OFROOT + campaign + '/' + modeName + '/baseline_w_' + campaign + suffix + '.txt'
-            info.fname_tree_w = OFROOT + campaign + '/' + modeName + '/tree_w_' + campaign + suffix + '.txt'
+            info.fname_evaluation = os.path.join(mode_dir, 'evaluation_%s%s.txt' % (campaign, suffix))
+            info.fname_baseline_q = os.path.join(mode_dir, 'baseline_q_%s%s.txt' % (campaign, suffix))
+            info.fname_tree_q = os.path.join(mode_dir, 'tree_q_%s%s.txt' % (campaign, suffix))
+            info.fname_baseline_w = os.path.join(mode_dir, 'baseline_w_%s%s.txt' % (campaign, suffix))
+            info.fname_tree_w = os.path.join(mode_dir, 'tree_w_%s%s.txt' % (campaign, suffix))
 
-            info.fname_pruneNode = OFROOT + campaign + '/' + modeName + '/pruneNode_' + campaign + suffix + '.txt'
-            info.fname_pruneEval = OFROOT + campaign + '/' + modeName + '/pruneEval_' + campaign + suffix + '.txt'
-            info.fname_testwin = OFROOT + campaign + '/' + modeName + '/testwin_' + campaign + suffix + '.txt'
-            step = STEP
+            info.fname_pruneNode = os.path.join(mode_dir, 'pruneNode_%s%s.txt' % (campaign, suffix))
+            info.fname_pruneEval = os.path.join(mode_dir, 'pruneEval_%s%s.txt' % (campaign, suffix))
+            info.fname_testwin = os.path.join(mode_dir, 'testWin_%s%s.txt' % (campaign, suffix))
             # baseline
             print campaign + " " + modeName + " baseline begins."
             print time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(time.time()))
-            baseline(info)
+            baseline = BaseLine()
+            baseline.baseline(info)
             print campaign + " " + modeName + " baseline ends."
             # getDataset
             dataset = getTrainData(info.fname_trainlog, info.fname_trainbid)
@@ -99,12 +101,29 @@ def paraTune(campaign_list):
 
     :param campaign_list: List[String] 
     """
-    suffix_list = ['n', 's', 'f']
     runtimes_leafSize = {}
     for campaign in campaign_list:
         runtimes_leafSize[campaign] = {}
+        # create os directory
+        campaign_results_dir = os.path.join(SURVIVAL_MODEL, campaign)
+        if not os.path.exists(campaign_results_dir):
+            os.makedirs(campaign_results_dir)
+        campaign_data_dir = os.path.join(MAKE_IPINYOU_DATA, campaign)
+        if not os.path.exists(campaign_data_dir):
+            os.makedirs(campaign_data_dir)
+
         for mode in MODE_LIST:
             runtimes_leafSize[campaign][mode] = {}
+            modeName = MODE_NAME_LIST[mode]
+            suffix = SUFFIX_LIST[mode]
+
+            # create os directory
+            mode_dir = os.path.join(campaign_results_dir, modeName)
+            if not os.path.exists(mode_dir):
+                os.makedirs(mode_dir)
+            paratune_dir = os.path.join(mode_dir, 'paraTune')
+            if not os.path.exists(paratune_dir):
+                os.makedirs(paratune_dir)
 
             ##################################   leafSize   ######################################
             for leafSize in [0]:
@@ -114,57 +133,38 @@ def paraTune(campaign_list):
                 info.basebid = BASE_BID
                 info.campaign = campaign
                 info.mode = mode
-                modeName = MODE_NAME_LIST[mode]
-                suffix = suffix_list[mode]
 
                 info.laplace = LAPLACE
                 info.leafSize = leafSize  #
                 info.treeDepth = TREE_DEPTH
 
                 # create os directory
-                if not os.path.exists(OFROOT + campaign + '/' + modeName):
-                    os.makedirs(OFROOT + campaign + '/' + modeName)
-                if not os.path.exists(OFROOT + campaign + '/' + modeName + '/paraTune'):
-                    os.makedirs(OFROOT + campaign + '/' + modeName + '/paraTune')
-                if not os.path.exists(OFROOT + campaign + '/' + modeName + '/paraTune/leafSize_' + str(leafSize)):
-                    os.makedirs(OFROOT + campaign + '/' + modeName + '/paraTune/leafSize_' + str(leafSize))
+                leaf_dir = os.path.join(paratune_dir, 'leafSize_%s' % leafSize)
+                if not os.path.exists(leaf_dir):
+                    os.makedirs(leaf_dir)
                 # info assignment
-                info.fname_trainlog = IFROOT + campaign + '/train.log.txt'
-                info.fname_testlog = IFROOT + campaign + '/test.log.txt'
-                info.fname_nodeData = OFROOT + campaign + '/' + modeName + '/paraTune/leafSize_' + str(
-                    leafSize) + '/nodeData_' + campaign + suffix + '.txt'
-                info.fname_nodeInfo = OFROOT + campaign + '/' + modeName + '/paraTune/leafSize_' + str(
-                    leafSize) + '/nodeInfos_' + campaign + suffix + '.txt'
+                info.fname_trainlog = os.path.join(campaign_data_dir, 'train.log.txt')
+                info.fname_testlog = os.path.join(campaign_data_dir, 'test.log.txt')
+                info.fname_nodeData = os.path.join(leaf_dir, 'nodeData_%s%s.txt' % (campaign, suffix))
+                info.fname_nodeInfo = os.path.join(leaf_dir, 'nodeInfos_%s%s.txt' % (campaign, suffix))
 
-                info.fname_trainbid = IFROOT + campaign + '/train_bid.txt'
-                info.fname_testbid = IFROOT + campaign + '/test_bid.txt'
-                info.fname_baseline = OFROOT + campaign + '/' + modeName + '/paraTune/leafSize_' + str(
-                    leafSize) + '/baseline_' + campaign + suffix + '.txt'
+                info.fname_trainbid = os.path.join(campaign_data_dir, 'train_bid.txt')
+                info.fname_testbid = os.path.join(campaign_data_dir, 'test_bid.txt')
+                info.fname_baseline = os.path.join(leaf_dir, 'baseline_%s%s.txt' % (campaign, suffix))
 
-                info.fname_monitor = OFROOT + campaign + '/' + modeName + '/paraTune/leafSize_' + str(
-                    leafSize) + '/monitor_' + campaign + suffix + '.txt'
-                info.fname_testKmeans = OFROOT + campaign + '/' + modeName + '/paraTune/leafSize_' + str(
-                    leafSize) + '/testKmeans_' + campaign + suffix + '.txt'
-                info.fname_testSurvival = OFROOT + campaign + '/' + modeName + '/paraTune/leafSize_' + str(
-                    leafSize) + '/testSurvival_' + campaign + suffix + '.txt'
+                info.fname_monitor = os.path.join(leaf_dir, 'monitor_%s%s.txt' % (campaign, suffix))
+                info.fname_testKmeans = os.path.join(leaf_dir, 'testKmeans_%s%s.txt' % (campaign, suffix))
+                info.fname_testSurvival = os.path.join(leaf_dir, 'testSurvival_%s%s.txt' % (campaign, suffix))
 
-                info.fname_evaluation = OFROOT + campaign + '/' + modeName + '/paraTune/leafSize_' + str(
-                    leafSize) + '/evaluation_' + campaign + suffix + '.txt'
-                info.fname_baseline_q = OFROOT + campaign + '/' + modeName + '/paraTune/leafSize_' + str(
-                    leafSize) + '/baseline_q_' + campaign + suffix + '.txt'
-                info.fname_tree_q = OFROOT + campaign + '/' + modeName + '/paraTune/leafSize_' + str(
-                    leafSize) + '/tree_q_' + campaign + suffix + '.txt'
-                info.fname_baseline_w = OFROOT + campaign + '/' + modeName + '/paraTune/leafSize_' + str(
-                    leafSize) + '/baseline_w_' + campaign + suffix + '.txt'
-                info.fname_tree_w = OFROOT + campaign + '/' + modeName + '/paraTune/leafSize_' + str(
-                    leafSize) + '/tree_w_' + campaign + suffix + '.txt'
+                info.fname_evaluation = os.path.join(leaf_dir, 'evaluation_%s%s.txt' % (campaign, suffix))
+                info.fname_baseline_q = os.path.join(leaf_dir, 'baseline_q_%s%s.txt' % (campaign, suffix))
+                info.fname_tree_q = os.path.join(leaf_dir, 'tree_q_%s%s.txt' % (campaign, suffix))
+                info.fname_baseline_w = os.path.join(leaf_dir, 'baseline_w_%s%s.txt' % (campaign, suffix))
+                info.fname_tree_w = os.path.join(leaf_dir, 'tree_w_%s%s.txt' % (campaign, suffix))
 
-                info.fname_pruneNode = OFROOT + campaign + '/' + modeName + '/paraTune/leafSize_' + str(
-                    leafSize) + '/pruneNode_' + campaign + suffix + '.txt'
-                info.fname_pruneEval = OFROOT + campaign + '/' + modeName + '/paraTune/leafSize_' + str(
-                    leafSize) + '/pruneEval_' + campaign + suffix + '.txt'
-                info.fname_testwin = OFROOT + campaign + '/' + modeName + '/paraTune/leafSize_' + str(
-                    leafSize) + '/testwin_' + campaign + suffix + '.txt'
+                info.fname_pruneNode = os.path.join(leaf_dir, 'pruneNode_%s%s.txt' % (campaign, suffix))
+                info.fname_pruneEval = os.path.join(leaf_dir, 'pruneEval_%s%s.txt' % (campaign, suffix))
+                info.fname_testwin = os.path.join(leaf_dir, 'testwin_%s%s.txt' % (campaign, suffix))
                 # baseline
                 print campaign, modeName, 'leafSize', leafSize, "baseline begins."
                 print time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(time.time()))

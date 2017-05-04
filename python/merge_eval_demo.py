@@ -1,6 +1,4 @@
-from DecisionTree import *
-
-MODEL_LIST = ['baseline_kdd15', 'normal_baseline', 'survival_baseline', 'normal_tree', 'survival_tree']
+from settings import *
 
 
 def merge_eval_demo(campaign_list):
@@ -8,17 +6,9 @@ def merge_eval_demo(campaign_list):
 
     :param campaign_list: List[String] 
     """
-    IFROOT = '../data/SurvivalModel/'
-    IFROOT_KDD15 = '../data/baseline_kdd15_Rversion/'
-    OFROOT = '../data/evaluation/'
-    suffix_list = ['n', 's', 'f']
 
-    params_anlp = {}
-    params_anlp[NORMAL] = {}
-    params_anlp[SURVIVAL] = {}
-    params_kld = {}
-    params_kld[NORMAL] = {}
-    params_kld[SURVIVAL] = {}
+    params_anlp = {NORMAL: {}, SURVIVAL: {}}
+    params_kld = {NORMAL: {}, SURVIVAL: {}}
 
     # average 20.56
     params_anlp[NORMAL]['1458'] = 'treeDepth_10_leafSize_3000'
@@ -67,16 +57,15 @@ def merge_eval_demo(campaign_list):
     anlps = {}
     KLD = {}
     N = {}
-    count = 0
     for campaign in campaign_list:
         anlps[campaign] = {}
         KLD[campaign] = {}
-        for laplace in LAPLACE_LIST:
+        for _ in LAPLACE_LIST:
             for mode in MODE_LIST:
                 mode_name = MODE_NAME_LIST[mode]
                 # baseline
                 i = 0
-                ifname = IFROOT + campaign + '/' + mode_name + '/baseline_' + campaign + suffix_list[mode] + '.txt'
+                ifname = os.path.join(SURVIVAL_MODEL, campaign, mode_name, 'baseline_%s%s.txt' % (campaign, SUFFIX_LIST[mode]))
                 fin = open(ifname, 'r')
                 lines = fin.readlines()
                 for line in lines:
@@ -95,8 +84,7 @@ def merge_eval_demo(campaign_list):
 
                 # evaluation anlp
                 i = 0
-                # ifname = IFROOT+campaign+'/'+mode_name+'/paraTune/'+params_anlp[mode][campaign]+'/evaluation_'+campaign+suffix_list[mode]+'.txt'
-                ifname = IFROOT + campaign + '/' + mode_name + '/evaluation_' + campaign + suffix_list[mode] + '.txt'
+                ifname = os.path.join(SURVIVAL_MODEL, campaign, mode_name, 'evaluation_%s%s.txt' % (campaign, SUFFIX_LIST[mode]))
                 fin = open(ifname, 'r')
                 lines = fin.readlines()
                 for line in lines:
@@ -112,8 +100,7 @@ def merge_eval_demo(campaign_list):
 
                 # evaluation kld
                 i = 0
-                # ifname = IFROOT+campaign+'/'+mode_name+'/paraTune/'+params_kld[mode][campaign]+'/evaluation_'+campaign+suffix_list[mode]+'.txt'
-                ifname = IFROOT + campaign + '/' + mode_name + '/evaluation_' + campaign + suffix_list[mode] + '.txt'
+                ifname = os.path.join(SURVIVAL_MODEL, campaign, mode_name, 'evaluation_%s%s.txt' % (campaign, SUFFIX_LIST[mode]))
                 fin = open(ifname, 'r')
                 lines = fin.readlines()
                 for line in lines:
@@ -129,7 +116,7 @@ def merge_eval_demo(campaign_list):
 
             # kdd15
             i = 0
-            ifname = IFROOT_KDD15 + campaign + '/baseline_kdd15_' + campaign + '.txt'
+            ifname = os.path.join(KDD15_RESULTS, campaign, 'baseline_kdd15_%s.txt' % campaign)
             fin = open(ifname, 'r')
             lines = fin.readlines()
             for line in lines:
@@ -161,8 +148,7 @@ def merge_eval_demo(campaign_list):
         KLD_all[model] /= N_all
 
     # print table
-    m = MODEL_LIST
-    ofname = OFROOT + 'evaluation_demo.txt'
+    ofname = os.path.join(EVALUATION, 'evaluation_demo.txt')
     fout = open(ofname, 'w')
     # anlp & kld
     fout.write('\t\tANLP\t\t\t\t\tKLD\n')
@@ -185,7 +171,7 @@ def merge_eval_demo(campaign_list):
     fout.close()
 
     # print
-    print 'ANLP\t\t\t\t\tKLD'
+    print '\t\tANLP\t\t\t\t\tKLD'
     print 'Campaign\tMM\tNM\tSM\tNTM\tSTM\tMM\tNM\tSM\tNTM\tSTM'
     for campaign in campaign_list:
         print campaign + '\t',

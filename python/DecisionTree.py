@@ -1,63 +1,12 @@
 from copy import deepcopy
 from math import *
 
-UPPER = 301
-
-LAPLACE = 3
-# LAPLACE_LIST = [1,10,20,30,40,50,60,70,80]
-LAPLACE_LIST = [1, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100]
-
-NORMAL = 0
-SURVIVAL = 1
-FULL = 2  # only use in baseline
-
-EVAL_MODE_LIST = ['0']
-# EVAL_MODE_LIST = ['0']
-
-LEAF_SIZE = 3000
-# LEAF_SIZE = 3000
-LEAF_SIZE_LIST = [3000]
-# LEAF_SIZE_LIST = [4000,5000,6000,7000,8000,9000,10000,12000,14000,16000,18000,20000]
-# LEAF_SIZE_LIST = [0,1000,2000,3000,4000,5000,6000,7000,8000,9000,10000]
-TREE_DEPTH = 50
-# TREE_DEPTH = 80
-TREE_DEPTH_LIST = [1, 2, 3, 4, 5, 6, 8, 10, 18, 22, 28, 30, 40]
-# TREE_DEPTH_LIST = [1,2,3,4,5,6,8,10,12,14,16,18,20,22,24,26,28,30,32,34,36,38,40]
-MODE_LIST = [
-    NORMAL,
-    SURVIVAL
-]
-# MODE_LIST = [NORMAL,SURVIVAL,FULL]
-CAMPAIGN_LIST = ['2997']
-# CAMPAIGN_LIST = ['2259','2261','2997']
-# CAMPAIGN_LIST = ['1458','2821','3358','3386','3427','3476']
-# CAMPAIGN_LIST = ['1458','2259','2261','2821','2997','3358','3386','3427','3476']
-CAMPAIGN_LIST1 = ['1458', '2259', '2261', '2821', '2997']
-CAMPAIGN_LIST2 = ['2261']
-CAMPAIGN_LIST3 = ['2261']
-
-MODE_NAME_LIST = ['normal', 'survival', 'full']
-
-STEP = 1
-STEP_LIST = [1]
-# STEP_LIST = [1,3,6,9,12,15]
-
-PAY_PRICE_INDEX = 23
-MY_BID_INDEX = 30
-WIN_AUCTION_INDEX = 31
-REGION_INDEX = 9
-
-# FEATURE_LIST = [1,2,7,10,11,16,17,18,21]
-FEATURE_LIST = [1, 2, 7, 9, 10, 11, 16, 17, 18, 21]
-FEAT_NAME = ['click', 'weekday', 'hour', 'bidid', 'timestamp', 'logtype', 'ipinyouid', 'useragent',
-             'IP', 'region', 'city', 'adexchange', 'domain', 'url', 'urlid', 'slotid',
-             'slotwidth', 'slotheight', 'slotvisibility', 'slotformat', 'slotprice', 'creative', 'bidprice', 'payprice',
-             'keypage', 'advertiser', 'usertag', 'nclick', 'nconversation', 'index', 'mybidprice', 'winAuction']
+from settings import *
 
 
 class Info:
     """
-    Class storing the file names
+    Info class
     """
     mode = NORMAL  # NORMAL or SURVIVAL
     campaign = ""
@@ -210,7 +159,6 @@ def getTrainData(ifname_data, ifname_bid):
     fin = open(ifname_data, 'r')
     lines = fin.readlines()
     dataset = []
-    featName = []
     i = -2
     for line in lines:
         i += 1
@@ -258,7 +206,6 @@ def getTestData(ifname_data):
     fin = open(ifname_data, 'r')
     lines = fin.readlines()
     dataset = []
-    featName = []
     i = -2
     for line in lines:
         i += 1

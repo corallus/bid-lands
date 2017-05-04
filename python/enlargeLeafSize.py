@@ -1,6 +1,7 @@
 from random import randint
 
 from DecisionTree import *
+from settings import *
 
 
 def getPruneInfo(info):
@@ -388,8 +389,6 @@ def enlargeLeafSize(campaign_list):
     OFROOT = '../data/SurvivalModel/'
     BASE_BID = '0'
 
-    suffix_list = ['n', 's', 'f']
-
     for campaign in campaign_list:
         print
         print campaign
@@ -397,7 +396,7 @@ def enlargeLeafSize(campaign_list):
             for leafSize in [3000]:
                 print MODE_NAME_LIST[mode],
                 modeName = MODE_NAME_LIST[mode]
-                suffix = suffix_list[mode]
+                suffix = SUFFIX_LIST[mode]
 
                 info = Info()
                 info.basebid = BASE_BID
